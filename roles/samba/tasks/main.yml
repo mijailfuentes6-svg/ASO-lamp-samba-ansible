@@ -1,0 +1,67 @@
+---
+- name: Instalar Samba y cliente
+  ansible.builtin.zypper:
+    name:
+      - samba
+      - samba-client
+    state: present
+
+- name: Crear grupo para el recurso compartido
+  ansible.builtin.group:
+    name: "{{ service_account_name }}"
+    state: present
+
+- name: Crear usuario Linux para Samba y FTP
+  ansible.builtin.user:
+    name: "{{ service_account_name }}"
+    group: "{{ service_account_name }}"
+    create_home: true
+    password: "{{ service_account_password | password_hash('sha512') }}"
+    update_password: on_create
+    state: present
+  no_log: true
+
+- name: Crear directorio compartido
+  ansible.builtin.file:
+    path: "{{ samba_share_path }}"
+    state: directory
+    owner: "{{ service_account_name }}"
+    group: "{{ service_account_name }}"
+    mode: '0770'
+
+- name: Comprobar si existe el usuario Samba
+  ansible.builtin.command:
+    argv:
+      - pdbedit
+      - -L
+      - -u
+      - "{{ service_account_name }}"
+  register: samba_user_check
+  changed_when: false
+  failed_when: false
+
+- name: Crear usuario de Samba con la contrasena solicitada
+  ansible.builtin.command:
+    argv:
+      - smbpasswd
+      - -s
+      - -a
+      - "{{ service_account_name }}"
+    stdin: "{{ service_account_password }}\n{{ service_account_password }}\n"
+  when: samba_user_check.rc != 0
+  no_log: true
+
+- name: Configurar Samba
+  ansible.builtin.template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reiniciar Samba
+
+- name: Habilitar e iniciar Samba
+  ansible.builtin.service:
+    name: smb
+    enabled: true
+    state: started

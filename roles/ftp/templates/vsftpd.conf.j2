@@ -1,0 +1,19 @@
+listen=YES
+listen_ipv6=NO
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+local_umask=022
+use_localtime=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+chroot_local_user=YES
+allow_writeable_chroot=YES
+secure_chroot_dir=/var/run/vsftpd/empty
+pam_service_name=vsftpd
+ssl_enable=NO
+pasv_enable=YES
+pasv_min_port={{ ftp_passive_min_port }}
+pasv_max_port={{ ftp_passive_max_port }}
+{% if ftp_pasv_address | length > 0 %}pasv_address={{ ftp_pasv_address }}
+{% endif %}

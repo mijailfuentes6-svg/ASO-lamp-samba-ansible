@@ -1,0 +1,21 @@
+# Nombres y rutas no secretos; ajusta la red y los puertos a tu laboratorio.
+service_account_name: PUBLICA
+samba_share_name: compartido
+samba_share_path: /srv/samba/compartido
+ftp_passive_min_port: 30000
+ftp_passive_max_port: 30100
+# Si el servidor esta detras de NAT, configura aqui la IP que ve el cliente FTP
+# y reenvia el rango pasivo en VMware/router. Vacio = no anunciar una IP fija.
+ftp_pasv_address: ""
+
+mariadb_root_user: root
+mariadb_app_database: aso_app
+mariadb_app_user: aso_user
+mariadb_socket: /run/mysql/mysql.sock
+
+postgresql_data_dir: /var/lib/pgsql/data
+postgresql_config: /var/lib/pgsql/data/postgresql.conf
+postgresql_hba_config: /var/lib/pgsql/data/pg_hba.conf
+postgresql_allowed_cidr: 192.168.142.0/24
+postgresql_app_database: aso_app
+postgresql_app_user: aso_user

@@ -1,0 +1,14 @@
+[global]
+    workgroup = WORKGROUP
+    security = user
+    map to guest = Never
+    server services = +smb
+
+[{{ samba_share_name }}]
+    path = {{ samba_share_path }}
+    browseable = yes
+    read only = no
+    valid users = {{ service_account_name }}
+    force group = {{ service_account_name }}
+    create mask = 0660
+    directory mask = 0770

@@ -1,0 +1,15 @@
+---
+- name: Instalar PHP y extensiones para MariaDB y PostgreSQL
+  ansible.builtin.zypper:
+    name:
+      - php8
+      - php8-cli
+      - apache2-mod_php8
+      - php8-mysql
+      - php8-pgsql
+    state: present
+
+- name: Reiniciar Apache para cargar PHP y extensiones
+  ansible.builtin.service:
+    name: apache2
+    state: restarted

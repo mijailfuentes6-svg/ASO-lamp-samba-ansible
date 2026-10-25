@@ -1,0 +1,5 @@
+*.retry
+*.log
+*.vault
+.vault_pass
+inventory/hosts.local.ini

@@ -1,0 +1,13 @@
+---
+- name: Instalar phpMyAdmin
+  ansible.builtin.zypper:
+    name:
+      - phpMyAdmin
+      - phpMyAdmin-apache
+      - phpMyAdmin-lang
+    state: present
+
+- name: Reiniciar Apache después de instalar phpMyAdmin
+  ansible.builtin.service:
+    name: apache2
+    state: restarted

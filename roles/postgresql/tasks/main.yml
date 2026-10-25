@@ -1,0 +1,87 @@
+---
+- name: Instalar PostgreSQL y controlador Python
+  ansible.builtin.zypper:
+    name:
+      - postgresql
+      - postgresql-server
+      - python313-psycopg2
+      - openssl
+    state: present
+
+- name: Habilitar e iniciar PostgreSQL
+  ansible.builtin.service:
+    name: postgresql
+    enabled: true
+    state: started
+
+- name: Generar certificado TLS autofirmado para el laboratorio
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -new
+      - -x509
+      - -days
+      - '3650'
+      - -nodes
+      - -text
+      - -out
+      - "{{ postgresql_data_dir }}/server.crt"
+      - -keyout
+      - "{{ postgresql_data_dir }}/server.key"
+      - -subj
+      - /CN={{ ansible_fqdn | default(inventory_hostname) }}
+    creates: "{{ postgresql_data_dir }}/server.crt"
+  become_user: postgres
+  notify: Reiniciar PostgreSQL
+
+- name: Asegurar permisos privados de la clave TLS
+  ansible.builtin.file:
+    path: "{{ postgresql_data_dir }}/server.key"
+    owner: postgres
+    group: postgres
+    mode: '0600'
+
+- name: Configurar escucha remota y cifrado TLS en PostgreSQL
+  ansible.builtin.template:
+    src: postgresql.conf.j2
+    dest: "{{ postgresql_config }}"
+    owner: postgres
+    group: postgres
+    mode: '0600'
+  notify: Reiniciar PostgreSQL
+
+- name: Configurar acceso remoto solo cifrado y con SCRAM
+  ansible.builtin.template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgresql_hba_config }}"
+    owner: postgres
+    group: postgres
+    mode: '0600'
+  notify: Reiniciar PostgreSQL
+
+- name: Aplicar configuracion PostgreSQL antes de crear cuentas
+  ansible.builtin.meta: flush_handlers
+
+- name: Establecer contrasena del rol administrador postgres
+  community.postgresql.postgresql_user:
+    name: postgres
+    password: "{{ postgresql_admin_password }}"
+    state: present
+  become_user: postgres
+  no_log: true
+
+- name: Crear usuario de aplicacion PostgreSQL
+  community.postgresql.postgresql_user:
+    name: "{{ postgresql_app_user }}"
+    password: "{{ postgresql_app_password }}"
+    state: present
+  become_user: postgres
+  no_log: true
+
+- name: Crear base de datos PostgreSQL y asignarla al usuario de aplicacion
+  community.postgresql.postgresql_db:
+    name: "{{ postgresql_app_database }}"
+    owner: "{{ postgresql_app_user }}"
+    state: present
+  become_user: postgres

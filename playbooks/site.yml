@@ -1,0 +1,35 @@
+---
+- name: Desplegar LAMP, Samba, FTP y PostgreSQL en openSUSE Leap 16.0
+  hosts: servidores
+  become: true
+
+  vars_prompt:
+    - name: service_account_password
+      prompt: "Contrasena nueva para el usuario Linux/Samba/FTP PUBLICA"
+      private: true
+      confirm: true
+    - name: mariadb_root_password
+      prompt: "Contrasena nueva de MariaDB para root"
+      private: true
+      confirm: true
+    - name: mariadb_app_password
+      prompt: "Contrasena nueva para el usuario de aplicacion MariaDB"
+      private: true
+      confirm: true
+    - name: postgresql_admin_password
+      prompt: "Contrasena nueva para el rol administrador PostgreSQL postgres"
+      private: true
+      confirm: true
+    - name: postgresql_app_password
+      prompt: "Contrasena nueva para el usuario de aplicacion PostgreSQL"
+      private: true
+      confirm: true
+
+  roles:
+    - apache
+    - php
+    - mariadb
+    - phpmyadmin
+    - samba
+    - ftp
+    - postgresql

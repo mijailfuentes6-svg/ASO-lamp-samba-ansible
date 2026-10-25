@@ -1,0 +1,44 @@
+---
+- name: Instalar MariaDB y controlador Python
+  ansible.builtin.zypper:
+    name:
+      - mariadb
+      - mariadb-client
+      - python313-PyMySQL
+    state: present
+
+- name: Habilitar e iniciar MariaDB
+  ansible.builtin.service:
+    name: mariadb
+    enabled: true
+    state: started
+
+- name: Establecer contrasena de root y asegurar la cuenta local
+  community.mysql.mysql_user:
+    name: "{{ mariadb_root_user }}"
+    host: localhost
+    password: "{{ mariadb_root_password }}"
+    check_implicit_admin: true
+    login_unix_socket: "{{ mariadb_socket }}"
+    state: present
+  no_log: true
+
+- name: Crear base de datos de la aplicacion en MariaDB
+  community.mysql.mysql_db:
+    name: "{{ mariadb_app_database }}"
+    state: present
+    login_user: "{{ mariadb_root_user }}"
+    login_password: "{{ mariadb_root_password }}"
+    login_unix_socket: "{{ mariadb_socket }}"
+
+- name: Crear usuario de aplicacion MariaDB
+  community.mysql.mysql_user:
+    name: "{{ mariadb_app_user }}"
+    host: localhost
+    password: "{{ mariadb_app_password }}"
+    priv: "{{ mariadb_app_database }}.*:ALL"
+    login_user: "{{ mariadb_root_user }}"
+    login_password: "{{ mariadb_root_password }}"
+    login_unix_socket: "{{ mariadb_socket }}"
+    state: present
+  no_log: true
