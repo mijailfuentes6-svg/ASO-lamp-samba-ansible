@@ -14,7 +14,7 @@ Automatizar con roles la instalacion y configuracion de Apache, PHP, phpMyAdmin,
 
 3. CONFIGURACION
 1) Editar inventory/hosts.ini y reemplazar 192.0.2.10 por la IP actual de la VM openSUSE. No escribir alli usuarios, contrasenas ni claves privadas.
-2) Ajustar group_vars/servidores.yml: postgresql_allowed_cidr debe ser la red autorizada para conectarse por PostgreSQL. Si se usa NAT en VMware, revisar tambien ftp_pasv_address y el reenvio de puertos.
+2) Ajustar inventory/group_vars/servidores.yml: postgresql_allowed_cidr debe ser la red autorizada para conectarse por PostgreSQL. Si se usa NAT en VMware, revisar tambien ftp_pasv_address y el reenvio de puertos.
 3) El usuario SSH se proporciona al ejecutar Ansible con -u. Las contrasenas de SSH, sudo y servicios se solicitan durante la ejecucion y no se guardan en el repositorio.
 
 4. EJECUCION
@@ -50,3 +50,4 @@ El archivo team_list.txt se entrega por separado en Classroom. No incluirlo en e
 
 8. NOTAS DE SEGURIDAD
 FTP sin TLS cifra usuario, contrasena y datos en transito; usarlo solo en el laboratorio solicitado. PostgreSQL usa certificado autofirmado de laboratorio, por lo que los clientes TLS deben confiar/configurarse para ese certificado. No reutilizar estas configuraciones para un servidor expuesto a Internet.
+

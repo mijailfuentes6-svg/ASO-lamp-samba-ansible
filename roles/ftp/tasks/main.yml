@@ -4,6 +4,14 @@
     name: vsftpd
     state: present
 
+- name: Crear directorio seguro de aislamiento de vsftpd
+  ansible.builtin.file:
+    path: /var/run/vsftpd/empty
+    state: directory
+    owner: root
+    group: root
+    mode: '0555'
+
 - name: Configurar vsftpd
   ansible.builtin.template:
     src: vsftpd.conf.j2
