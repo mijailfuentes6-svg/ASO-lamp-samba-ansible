@@ -14,14 +14,30 @@
     state: started
 
 - name: Establecer contrasena de root y asegurar la cuenta local
-  community.mysql.mysql_user:
-    name: "{{ mariadb_root_user }}"
-    host: localhost
-    password: "{{ mariadb_root_password }}"
-    check_implicit_admin: true
-    login_unix_socket: "{{ mariadb_socket }}"
-    state: present
-  no_log: true
+  block:
+    # Primer despliegue: MariaDB suele permitir el acceso administrativo
+    # local por socket antes de que se establezca la contrasena de root.
+    - name: Configurar root en una instalacion nueva de MariaDB
+      community.mysql.mysql_user:
+        name: "{{ mariadb_root_user }}"
+        host: localhost
+        password: "{{ mariadb_root_password }}"
+        check_implicit_admin: true
+        login_unix_socket: "{{ mariadb_socket }}"
+        state: present
+      no_log: true
+  rescue:
+    # Reejecuciones: si root ya tiene contrasena, autenticarse con ella.
+    - name: Asegurar root en una instalacion existente de MariaDB
+      community.mysql.mysql_user:
+        name: "{{ mariadb_root_user }}"
+        host: localhost
+        password: "{{ mariadb_root_password }}"
+        login_user: "{{ mariadb_root_user }}"
+        login_password: "{{ mariadb_root_password }}"
+        login_unix_socket: "{{ mariadb_socket }}"
+        state: present
+      no_log: true
 
 - name: Crear base de datos de la aplicacion en MariaDB
   community.mysql.mysql_db:

@@ -36,6 +36,8 @@ Durante el playbook se solicitaran de forma oculta las contrasenas nuevas de PUB
 - ftp: instala vsftpd con acceso local de escritura y puertos pasivos 30000-30100.
 - postgresql: instala PostgreSQL, define clave admin y usuario/base de aplicacion, habilita acceso remoto cifrado con TLS y SCRAM.
 
+El role de MariaDB admite el primer despliegue y las reejecuciones: inicializa root por socket y, si root ya tiene contrasena, intenta autenticarse con la contrasena solicitada.
+
 Recurso Samba: \\SERVIDOR\compartido (sustituir SERVIDOR por la IP/nombre del destino).
 Ruta: /srv/samba/compartido. Usuario: PUBLICA. Mascara de archivos: 0660; directorios: 0770.
 FTP: puerto 21/TCP y rango pasivo 30000-30100/TCP.
